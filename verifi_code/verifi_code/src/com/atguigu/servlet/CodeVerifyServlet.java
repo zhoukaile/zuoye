@@ -32,7 +32,23 @@ public class CodeVerifyServlet extends HttpServlet {
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		//1.获取两个参数,并验空
+		String phoneNo = request.getParameter("phone_no");
+		String verifyCode = request.getParameter("verify_code");
+		if(phoneNo==null||verifyCode==null) {
+			return ;
+		}
+		//2.获取验证码
+		Jedis jedis = new Jedis("192.168.193.128",6379);
+		String codeKey = VerifyCodeConfig.PHONE_PREFIX+phoneNo+VerifyCodeConfig.PHONE_SUFFIX;
+		String code = jedis.get(codeKey);
+		jedis.close();
 		
+		//3.判断
+		if(verifyCode.equals(code)) {
+			//4.返回结果
+			response.getWriter().print(true);
+		}
 	}
 
 }
